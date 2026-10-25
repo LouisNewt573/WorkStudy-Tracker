@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPlan Studio - Quản lý Môn học & Kế hoạch Học tập</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Firebase SDKs for Cross-Device Cloud Sync -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col antialiased transition-colors duration-200">
+
+  <!-- Top Navbar -->
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-850/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        </div>
+        <div>
+          <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
+            EduPlan <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300 font-semibold">Studio</span>
+          </span>
+          <span class="hidden sm:block text-[11px] text-slate-400 font-medium -mt-0.5">Tracking môn học & Kế hoạch học tập</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl space-x-1">
+        <button data-tab="timetable" class="nav-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          <span>Thời khóa biểu</span>
+        </button>
+        <button data-tab="tasks" class="nav-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+          <span>Kế hoạch & Deadline</span>
+        </button>
+        <button data-tab="subjects" class="nav-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          <span>Quản lý Môn học</span>
+        </button>
+        <button data-tab="pomodoro" class="nav-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+          <span>⏱️ Pomodoro</span>
+        </button>
+      </nav>
+
+      <!-- Right Utility Actions -->
+      <div class="flex items-center space-x-2">
+        <!-- Cloud Sync & Login Status -->
+        <div id="cloud-sync-status-container"></div>
+
+        <!-- Urgent alert badge -->
+        <span id="urgent-header-badge" class="hidden px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300 urgent-pulse">
+          0 việc khẩn cấp
+        </span>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle-btn" title="Chuyển chế độ Sáng/Tối" class="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+
+        <!-- Backup & Settings dropdown / buttons -->
+        <div class="flex items-center space-x-1 border-l border-slate-200 dark:border-slate-700 pl-2">
+          <button id="export-data-btn" title="Sao lưu dữ liệu (Xuất file JSON)" class="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          </button>
+          <label title="Khôi phục dữ liệu (Nhập file JSON)" class="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            <input type="file" id="import-file-input" accept=".json" class="hidden">
+          </label>
+          <button id="reset-data-btn" title="Nạp lại dữ liệu mẫu" class="p-2 text-slate-400 hover:text-amber-600 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-950/30 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <div class="md:hidden flex items-center justify-around py-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 px-2">
+      <button data-tab="timetable" class="nav-tab-btn px-2.5 py-1.5 rounded-xl text-[11px] font-bold flex flex-col items-center">
+        <span>📅</span><span>TKB Tuần</span>
+      </button>
+      <button data-tab="tasks" class="nav-tab-btn px-2.5 py-1.5 rounded-xl text-[11px] font-bold flex flex-col items-center">
+        <span>📋</span><span>Kế hoạch</span>
+      </button>
+      <button data-tab="subjects" class="nav-tab-btn px-2.5 py-1.5 rounded-xl text-[11px] font-bold flex flex-col items-center">
+        <span>📚</span><span>Môn học</span>
+      </button>
+      <button data-tab="pomodoro" class="nav-tab-btn px-2.5 py-1.5 rounded-xl text-[11px] font-bold flex flex-col items-center">
+        <span>⏱️</span><span>Pomodoro</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+    
+    <!-- Tab 1: Thời khóa biểu tuần -->
+    <section id="tab-section-timetable">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Thời khóa biểu tuần</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Theo dõi lịch học các ngày trong tuần và phòng học trực quan</p>
+        </div>
+      </div>
+      <div id="timetable-container"></div>
+    </section>
+
+    <!-- Tab 2: Kế hoạch & Deadline -->
+    <section id="tab-section-tasks" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Kế hoạch học tập & Deadline</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Quản lý bài tập về nhà, tiểu luận, lịch thi cử với bảng Kanban & đếm ngược</p>
+        </div>
+      </div>
+      <div id="tasks-container"></div>
+    </section>
+
+    <!-- Tab 3: Quản lý môn học -->
+    <section id="tab-section-subjects" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Quản lý Môn học & Điểm số</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Theo dõi số tín chỉ, giảng viên, mục tiêu và điểm số trung bình (GPA)</p>
+        </div>
+        <button onclick="window.eduApp.subjects.openModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <span>+ Thêm môn học</span>
+        </button>
+      </div>
+      <div id="subjects-stats-container"></div>
+      <div id="subjects-list-container"></div>
+    </section>
+
+    <!-- Tab 4: Pomodoro Focus Timer -->
+    <section id="tab-section-pomodoro" class="hidden">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Đồng hồ Tập trung Pomodoro</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Học tập hiệu quả với phương pháp 25 phút tập trung + 5 phút nghỉ ngơi</p>
+        </div>
+      </div>
+      <div id="pomodoro-container"></div>
+    </section>
+
+  </main>
+
+  <!-- Global Modal Container for Dialogs -->
+  <div id="modal-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/subjects.js"></script>
+  <script src="js/timetable.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/pomodoro.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
